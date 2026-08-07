@@ -31,6 +31,8 @@ jobs:
         run: ruff check .
       - name: Type check
         run: mypy src
+      - name: Validate modular CI registry
+        run: engagement-platform impact --registry configs/modules.toml --changed src/engagement_platform/dag.py docs/architecture.md
       - name: Test
         run: pytest
       - name: Build wheel
