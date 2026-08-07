@@ -6,6 +6,27 @@
 
 An independent data engineering portfolio project that builds and delivers customer engagement recommendations from fully synthetic data. It demonstrates production-oriented patterns while remaining runnable on a laptop and independent of private infrastructure.
 
+## Engineering highlights
+
+| Capability | Executable evidence | Engineering value |
+|---|---|---|
+| Distributed feature engineering | [`spark_features.py`](src/engagement_platform/spark_features.py) and a real local Spark integration test | DataFrame aggregation, joins, date boundaries, null handling, and a portable Spark contract |
+| Lakehouse write reliability | [`storage.py`](src/engagement_platform/storage.py), [`retry.py`](src/engagement_platform/retry.py), and [`partitioning.py`](src/engagement_platform/partitioning.py) | Idempotent Delta merge, explicit transient-error policy, and narrow target read scopes |
+| Data quality | [`quality.py`](src/engagement_platform/quality.py) and generic [SQL expectations](sql/data_quality_checks.sql) | Required pre-delivery gates for uniqueness, ranges, references, time boundaries, and limits |
+| Scoring and ranking | [`scoring.py`](src/engagement_platform/scoring.py) and [`ranking.py`](src/engagement_platform/ranking.py) | Transparent normalized scoring, deterministic ordering, top-K limits, and deduplication |
+| Reliable application delivery | [`outbox.py`](src/engagement_platform/outbox.py), [`delivery.py`](src/engagement_platform/delivery.py), and [`reconciliation.py`](src/engagement_platform/reconciliation.py) | Transactional outbox, immutable state history, idempotency, timeout retry, and reconciliation |
+| Safe historical processing | [`replay.py`](src/engagement_platform/replay.py) and [ADR 0002](docs/decisions/0002-replay-without-side-effects.md) | As-of reads, deterministic rebuilding, idempotent storage, and zero external side effects |
+| Platform engineering | [YAML configuration](configs/), [wheel packaging](pyproject.toml), and [Databricks bundle](databricks.yml) | Reproducible environments, recursive defaults, deployable artifacts, and public dependencies |
+| Delivery quality | [GitHub Actions](.github/workflows/test.yml) and the [testing strategy](docs/testing-strategy.md) | Ruff, strict mypy, 37 tests including Spark, wheel build, 95%+ coverage, and content scanning |
+
+### Five-minute technical tour
+
+1. Start with the [architecture diagram](docs/architecture.md).
+2. Inspect the orchestration path in [`EngagementPipeline`](src/engagement_platform/orchestration.py).
+3. Review the [reliability trade-offs](docs/reliability.md) and [operations guide](docs/operations.md).
+4. Run `pytest` to execute the pure-Python, integration, and Spark contracts.
+5. Run the normal pipeline and historical rebuild commands shown below and compare their side effects.
+
 ## Architecture
 
 ```mermaid
