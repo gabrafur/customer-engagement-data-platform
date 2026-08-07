@@ -16,14 +16,16 @@ An independent data engineering portfolio project that builds and delivers custo
 | Scoring and ranking | [`scoring.py`](src/engagement_platform/scoring.py) and [`ranking.py`](src/engagement_platform/ranking.py) | Transparent normalized scoring, deterministic ordering, top-K limits, and deduplication |
 | Reliable application delivery | [`outbox.py`](src/engagement_platform/outbox.py), [`delivery.py`](src/engagement_platform/delivery.py), and [`reconciliation.py`](src/engagement_platform/reconciliation.py) | Transactional outbox, immutable state history, idempotency, timeout retry, and reconciliation |
 | Safe historical processing | [`replay.py`](src/engagement_platform/replay.py) and [ADR 0002](docs/decisions/0002-replay-without-side-effects.md) | As-of reads, deterministic rebuilding, idempotent storage, and zero external side effects |
+| Modular orchestration | [`dag.py`](src/engagement_platform/dag.py) and [`provenance.py`](src/engagement_platform/provenance.py) | Dependency modes, readiness gates, topological execution, explicit terminal states, and deterministic run lineage |
+| Change-aware delivery | [`change_impact.py`](src/engagement_platform/change_impact.py), [`modules.toml`](configs/modules.toml), and [`benchmark.py`](src/engagement_platform/benchmark.py) | Module ownership, selective CI matrices, per-module versions, reproducible artifact tags, and measurable local runs |
 | Platform engineering | [YAML configuration](configs/), [wheel packaging](pyproject.toml), and [Databricks bundle](databricks.yml) | Reproducible environments, recursive defaults, deployable artifacts, and public dependencies |
-| Delivery quality | [GitHub Actions](.github/workflows/test.yml) and the [testing strategy](docs/testing-strategy.md) | Ruff, strict mypy, 37 tests including Spark, wheel build, 95%+ coverage, and content scanning |
+| Delivery quality | [GitHub Actions](.github/workflows/test.yml) and the [testing strategy](docs/testing-strategy.md) | Ruff, strict mypy, 52 tests including Spark, wheel build, 95%+ coverage, and content scanning |
 
 ### Five-minute technical tour
 
 1. Start with the [architecture diagram](docs/architecture.md).
 2. Inspect the orchestration path in [`EngagementPipeline`](src/engagement_platform/orchestration.py).
-3. Review the [reliability trade-offs](docs/reliability.md) and [operations guide](docs/operations.md).
+3. Review the [reliability trade-offs](docs/reliability.md), [modular platform design](docs/modular-platform.md), and [operations guide](docs/operations.md).
 4. Run `pytest` to execute the pure-Python, integration, and Spark contracts.
 5. Run the normal pipeline and historical rebuild commands shown below and compare their side effects.
 
@@ -58,6 +60,10 @@ Read the detailed [architecture](docs/architecture.md), [data model](docs/data-m
 - transactional outbox and immutable state-transition history;
 - historical as-of rebuilding with external delivery disabled;
 - recursive workflow defaults with explicit overrides;
+- DAG orchestration with dependency modes and readiness gates;
+- deterministic provenance and order-independent batch fingerprints;
+- TOML module registry, selective CI planning, and artifact version tags;
+- a reproducible local benchmark harness;
 - transient-failure retries with exponential backoff;
 - simulated downstream delivery and status reconciliation;
 - structured JSON logging and dependency-free metrics;
@@ -70,6 +76,7 @@ Read the detailed [architecture](docs/architecture.md), [data model](docs/data-m
 - PySpark 3.5 and Spark SQL
 - Delta Lake
 - YAML
+- TOML
 - pytest, Ruff, and mypy
 - GitHub Actions
 - Databricks-compatible deployment example
@@ -87,6 +94,8 @@ python -m pip install -e '.[dev]'
 engagement-platform generate --customers 100 --output data/generated
 engagement-platform run --config configs/development.yml --customers 100
 engagement-platform rebuild --config configs/development.yml --customers 100 --as-of-date 2026-06-01
+engagement-platform impact --registry configs/modules.toml --changed src/engagement_platform/dag.py docs/architecture.md
+engagement-platform benchmark --config configs/development.yml --customers 10000
 ruff check .
 mypy src
 pytest -m 'not spark'

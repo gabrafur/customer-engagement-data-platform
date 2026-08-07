@@ -29,6 +29,7 @@ flowchart TB
     subgraph Operations
         L[JSON logs]
         Q[Stage counters]
+        P[Run provenance and batch fingerprint]
     end
 
     C --> V
@@ -38,6 +39,7 @@ flowchart TB
     K -. metrics .-> Q
     X -. metrics .-> Q
     X -. events .-> L
+    G -. lineage .-> P
 ```
 
 ## Design boundaries
@@ -51,6 +53,8 @@ Only a `202` response is considered accepted in this fictional protocol. Other c
 Historical rebuilding uses an explicit as-of boundary, excludes later transactions, recomputes recommendations, and writes idempotently without invoking a delivery client. This makes replay deterministic and side-effect free.
 
 For concurrent Delta mutations, the public helper separates two concerns: bounded retry handles transient conflicts, while a literal partition predicate narrows the target read scope. One does not replace the other.
+
+The local orchestration layer models dependency modes, readiness gates, failure states, and skipped downstream tasks without depending on a cloud scheduler. A TOML registry independently maps changed paths to portfolio modules and their required CI checks.
 
 ## Deployment portability
 
