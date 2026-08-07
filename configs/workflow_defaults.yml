@@ -1,0 +1,11 @@
+job_defaults:
+  timeout_seconds: 3600
+  max_concurrent_runs: 1
+task_defaults:
+  timeout_seconds: 1200
+  max_retries: 3
+  retry_on_timeout: true
+  min_retry_interval_millis: 30000
+cluster_defaults:
+  workers: 2
+  runtime_family: long-term-support

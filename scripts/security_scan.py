@@ -41,6 +41,8 @@ IGNORED_PARTS = {
     ".ruff_cache",
     ".venv",
     "__pycache__",
+    "build",
+    "dist",
 }
 
 
@@ -48,7 +50,11 @@ def scan(root: Path) -> list[str]:
     findings: list[str] = []
     scanner = Path(__file__).resolve()
     for path in sorted(root.rglob("*")):
-        if not path.is_file() or any(part in IGNORED_PARTS for part in path.parts):
+        if (
+            not path.is_file()
+            or any(part in IGNORED_PARTS for part in path.parts)
+            or any(part.endswith(".egg-info") for part in path.parts)
+        ):
             continue
         if path.resolve() == scanner:
             continue

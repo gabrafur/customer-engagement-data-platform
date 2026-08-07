@@ -11,18 +11,20 @@ An independent data engineering portfolio project that builds and delivers custo
 ```mermaid
 flowchart LR
     A[Synthetic customers and transactions] --> B[Ingestion and validation]
-    B --> C[Feature engineering]
+    B --> Q{Data quality gate}
+    Q --> C[Feature engineering]
     C --> D[Generic rules and scoring]
     D --> E[Regional ranking and deduplication]
-    E --> F[Idempotent storage]
-    F --> G[Simulated delivery with retries]
-    G --> H[Status reconciliation]
+    E --> F[Idempotent Delta-compatible storage]
+    F --> O[Transactional outbox]
+    O --> G[Simulated delivery with retries]
+    G --> H[Immutable status transitions]
     H --> I[Structured logs and metrics]
 ```
 
 The core implementation is pure Python for quick local execution. An optional PySpark transformation and Delta Lake merge adapter demonstrate how the same public contracts scale to distributed workloads. A generic Databricks Asset Bundle example is included without a workspace, identity, or private endpoint.
 
-Read the detailed [architecture](docs/architecture.md), [data model](docs/data-model.md), and [clean-room design decision](docs/decisions/0001-clean-room-implementation.md).
+Read the detailed [architecture](docs/architecture.md), [data model](docs/data-model.md), [reliability design](docs/reliability.md), [operations guide](docs/operations.md), [testing strategy](docs/testing-strategy.md), and [clean-room design decision](docs/decisions/0001-clean-room-implementation.md).
 
 ## Engineering concepts
 
@@ -31,6 +33,10 @@ Read the detailed [architecture](docs/architecture.md), [data model](docs/data-m
 - feature engineering with pure Python and PySpark;
 - transparent scoring, deterministic ranking, and deduplication;
 - stable idempotency keys and Delta Lake merge semantics;
+- literal partition scoping and bounded retry for concurrent mutations;
+- transactional outbox and immutable state-transition history;
+- historical as-of rebuilding with external delivery disabled;
+- recursive workflow defaults with explicit overrides;
 - transient-failure retries with exponential backoff;
 - simulated downstream delivery and status reconciliation;
 - structured JSON logging and dependency-free metrics;
@@ -59,6 +65,7 @@ python -m pip install -e '.[dev]'
 
 engagement-platform generate --customers 100 --output data/generated
 engagement-platform run --config configs/development.yml --customers 100
+engagement-platform rebuild --config configs/development.yml --customers 100 --as-of-date 2026-06-01
 ruff check .
 mypy src
 pytest -m 'not spark'

@@ -25,3 +25,6 @@ def test_pipeline_runs_end_to_end_and_replay_is_idempotent(
     assert client.calls == len(first.recommendations)
     assert second.reconciliation.accepted == len(first.recommendations)
     assert first.metrics["customers_input"] == 20
+    assert first.input_quality.passed
+    assert first.output_quality.passed
+    assert first.metrics["quality_checks_passed"] == 9

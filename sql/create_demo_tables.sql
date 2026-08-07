@@ -20,3 +20,19 @@ CREATE TABLE IF NOT EXISTS demo.gold.customer_recommendations (
   idempotency_key STRING NOT NULL,
   created_at TIMESTAMP NOT NULL
 ) USING DELTA;
+
+CREATE TABLE IF NOT EXISTS demo.gold.delivery_outbox (
+  event_id STRING NOT NULL,
+  sequence BIGINT NOT NULL,
+  idempotency_key STRING NOT NULL,
+  payload STRING NOT NULL,
+  created_at TIMESTAMP NOT NULL
+) USING DELTA;
+
+CREATE TABLE IF NOT EXISTS demo.gold.delivery_status_transitions (
+  sequence BIGINT NOT NULL,
+  idempotency_key STRING NOT NULL,
+  state STRING NOT NULL,
+  occurred_at TIMESTAMP NOT NULL,
+  detail STRING NOT NULL
+) USING DELTA;

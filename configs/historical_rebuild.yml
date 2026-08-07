@@ -1,0 +1,5 @@
+mode: historical_rebuild
+external_delivery_enabled: false
+as_of_date: "2026-06-01"
+write_strategy: idempotent_merge
+quality_gate: required

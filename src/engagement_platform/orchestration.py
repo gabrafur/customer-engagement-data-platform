@@ -11,6 +11,7 @@ from engagement_platform.delivery import MockDeliveryClient, ReliableDeliverySer
 from engagement_platform.features import build_customer_features
 from engagement_platform.models import Customer, DeliveryReceipt, Recommendation, Transaction
 from engagement_platform.monitoring import Metrics
+from engagement_platform.quality import DataQualityReport, validate_inputs, validate_recommendations
 from engagement_platform.ranking import make_recommendations
 from engagement_platform.reconciliation import ReconciliationSummary, reconcile
 from engagement_platform.storage import InMemoryRecommendationStore
@@ -22,6 +23,8 @@ class PipelineResult:
     receipts: list[DeliveryReceipt]
     reconciliation: ReconciliationSummary
     metrics: dict[str, int]
+    input_quality: DataQualityReport
+    output_quality: DataQualityReport
 
 
 class EngagementPipeline:
@@ -48,6 +51,8 @@ class EngagementPipeline:
         self, customers: list[Customer], transactions: list[Transaction]
     ) -> PipelineResult:
         created_at = datetime.combine(self.config.as_of_date, time.min, tzinfo=UTC)
+        input_quality = validate_inputs(customers, transactions, self.config.as_of_date)
+        input_quality.require_pass()
         self.metrics.increment("customers_input", len(customers))
         self.metrics.increment("transactions_input", len(transactions))
 
@@ -56,6 +61,17 @@ class EngagementPipeline:
         recommendations = make_recommendations(
             features, self.config.scoring, self.config.regions, created_at
         )
+        output_quality = validate_recommendations(
+            recommendations,
+            {
+                name: region.recommendation_limit
+                for name, region in self.config.regions.items()
+                if region.enabled
+            },
+        )
+        output_quality.require_pass()
+        self.metrics.increment("quality_checks_passed", len(input_quality.checks))
+        self.metrics.increment("quality_checks_passed", len(output_quality.checks))
         self.metrics.increment("recommendations_created", len(recommendations))
         self.metrics.increment("recommendations_inserted", self.store.upsert(recommendations))
 
@@ -64,4 +80,11 @@ class EngagementPipeline:
         self.metrics.increment("deliveries_accepted", summary.accepted)
         self.metrics.increment("deliveries_retry_exhausted", summary.retry_exhausted)
         self.logger.info("pipeline_complete", extra={"context": self.metrics.snapshot()})
-        return PipelineResult(recommendations, receipts, summary, self.metrics.snapshot())
+        return PipelineResult(
+            recommendations,
+            receipts,
+            summary,
+            self.metrics.snapshot(),
+            input_quality,
+            output_quality,
+        )

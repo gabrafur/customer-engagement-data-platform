@@ -4,9 +4,32 @@ resources:
       name: customer-engagement-demo
       tasks:
         - task_key: run_synthetic_pipeline
-          spark_python_task:
-            python_file: ../src/engagement_platform/cli.py
-            parameters: ["run", "--config", "../configs/development.yml", "--customers", "1000"]
+          python_wheel_task:
+            package_name: customer-engagement-data-platform
+            entry_point: engagement-platform
+            parameters: ["run", "--config", "configs/development.yml", "--customers", "1000"]
+          libraries:
+            - whl: ../dist/*.whl
+          new_cluster:
+            spark_version: 15.4.x-scala2.12
+            node_type_id: Standard_D4ds_v5
+            num_workers: 2
+        - task_key: validate_historical_rebuild
+          depends_on:
+            - task_key: run_synthetic_pipeline
+          python_wheel_task:
+            package_name: customer-engagement-data-platform
+            entry_point: engagement-platform
+            parameters:
+              - rebuild
+              - --config
+              - configs/development.yml
+              - --customers
+              - "1000"
+              - --as-of-date
+              - "2026-06-01"
+          libraries:
+            - whl: ../dist/*.whl
           new_cluster:
             spark_version: 15.4.x-scala2.12
             node_type_id: Standard_D4ds_v5
