@@ -1,10 +1,24 @@
 # Customer Engagement Data Platform
 
-[![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?logo=githubactions&logoColor=white)](.github/workflows/test.yml)
+[![CI](https://github.com/gabrafur/customer-engagement-data-platform/actions/workflows/test.yml/badge.svg)](https://github.com/gabrafur/customer-engagement-data-platform/actions/workflows/test.yml)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 An independent data engineering portfolio project that builds and delivers customer engagement recommendations from fully synthetic data. It demonstrates production-oriented patterns while remaining runnable on a laptop and independent of private infrastructure.
+
+## Portfolio snapshot
+
+- **End-to-end ownership:** data modeling, ingestion, quality gates, feature
+  engineering, ranking, storage, delivery, observability, and operations.
+- **Distributed-data contract:** the feature pipeline runs with PySpark and
+  Spark SQL, with a local integration test covering joins, nulls, and date
+  boundaries.
+- **Reliable delivery:** idempotent writes, transactional outbox, bounded
+  retries, immutable transitions, reconciliation, and side-effect-free replay.
+- **Engineering discipline:** typed Python package, configuration validation,
+  automated CI, 52 tests, 95%+ coverage, wheel build, and content scanning.
+- **Portable demonstration:** synthetic data and public dependencies make the
+  complete system reviewable without access to private infrastructure.
 
 ## Engineering highlights
 
