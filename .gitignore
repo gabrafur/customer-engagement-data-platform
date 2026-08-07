@@ -1,0 +1,16 @@
+.env
+.venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.coverage
+htmlcov/
+.DS_Store
+data/generated/*
+!data/generated/.gitkeep
+.databricks/

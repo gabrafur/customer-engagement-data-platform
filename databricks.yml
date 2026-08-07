@@ -1,0 +1,12 @@
+bundle:
+  name: customer-engagement-demo
+
+include:
+  - resources/*.yml
+
+targets:
+  development:
+    mode: development
+    default: true
+  production:
+    mode: production

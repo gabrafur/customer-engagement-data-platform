@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  quality-and-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Install public dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -e '.[dev,spark]'
+      - name: Lint
+        run: ruff check .
+      - name: Type check
+        run: mypy src
+      - name: Test
+        run: pytest
+      - name: Security and content scan
+        run: python scripts/security_scan.py .

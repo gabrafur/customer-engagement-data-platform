@@ -1,0 +1,16 @@
+pipeline:
+  stages:
+    - synthetic_ingestion
+    - feature_engineering
+    - generic_rules
+    - scoring
+    - regional_ranking
+    - idempotent_storage
+    - simulated_delivery
+    - status_reconciliation
+tables:
+  customers: demo.bronze.customers
+  transactions: demo.bronze.transactions
+  customer_features: demo.silver.customer_features
+  recommendations: demo.gold.customer_recommendations
+  delivery_status: demo.gold.delivery_status

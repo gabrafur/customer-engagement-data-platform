@@ -1,0 +1,13 @@
+resources:
+  jobs:
+    engagement_demo:
+      name: customer-engagement-demo
+      tasks:
+        - task_key: run_synthetic_pipeline
+          spark_python_task:
+            python_file: ../src/engagement_platform/cli.py
+            parameters: ["run", "--config", "../configs/development.yml", "--customers", "1000"]
+          new_cluster:
+            spark_version: 15.4.x-scala2.12
+            node_type_id: Standard_D4ds_v5
+            num_workers: 2

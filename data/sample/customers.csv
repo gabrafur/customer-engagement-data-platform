@@ -1,0 +1,5 @@
+customer_id,region,segment,registration_date,engagement_score
+customer_0001,north,starter,2026-07-20,0.82
+customer_0002,south,standard,2025-11-03,0.24
+customer_0003,north,premium,2024-05-12,0.71
+customer_0004,south,standard,2025-01-09,0.48

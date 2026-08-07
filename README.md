@@ -1,0 +1,109 @@
+# Customer Engagement Data Platform
+
+[![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?logo=githubactions&logoColor=white)](.github/workflows/test.yml)
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](pyproject.toml)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+An independent data engineering portfolio project that builds and delivers customer engagement recommendations from fully synthetic data. It demonstrates production-oriented patterns while remaining runnable on a laptop and independent of private infrastructure.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[Synthetic customers and transactions] --> B[Ingestion and validation]
+    B --> C[Feature engineering]
+    C --> D[Generic rules and scoring]
+    D --> E[Regional ranking and deduplication]
+    E --> F[Idempotent storage]
+    F --> G[Simulated delivery with retries]
+    G --> H[Status reconciliation]
+    H --> I[Structured logs and metrics]
+```
+
+The core implementation is pure Python for quick local execution. An optional PySpark transformation and Delta Lake merge adapter demonstrate how the same public contracts scale to distributed workloads. A generic Databricks Asset Bundle example is included without a workspace, identity, or private endpoint.
+
+Read the detailed [architecture](docs/architecture.md), [data model](docs/data-model.md), and [clean-room design decision](docs/decisions/0001-clean-room-implementation.md).
+
+## Engineering concepts
+
+- deterministic synthetic data generation;
+- configuration-driven pipeline behavior;
+- feature engineering with pure Python and PySpark;
+- transparent scoring, deterministic ranking, and deduplication;
+- stable idempotency keys and Delta Lake merge semantics;
+- transient-failure retries with exponential backoff;
+- simulated downstream delivery and status reconciliation;
+- structured JSON logging and dependency-free metrics;
+- strict configuration validation and data-quality assertions;
+- unit, integration, Spark, lint, type, and security checks in CI.
+
+## Technology stack
+
+- Python 3.11
+- PySpark 3.5 and Spark SQL
+- Delta Lake
+- YAML
+- pytest, Ruff, and mypy
+- GitHub Actions
+- Databricks-compatible deployment example
+
+## Run locally
+
+Prerequisites: Python 3.11. Java 17 is required only for the optional Spark test.
+
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e '.[dev]'
+
+engagement-platform generate --customers 100 --output data/generated
+engagement-platform run --config configs/development.yml --customers 100
+ruff check .
+mypy src
+pytest -m 'not spark'
+```
+
+To include the distributed transformation test:
+
+```bash
+python -m pip install -e '.[dev,spark]'
+pytest
+```
+
+The default configuration always uses `MockDeliveryClient`. `HttpDeliveryClient` requires an endpoint supplied by the caller and is never instantiated by the demo pipeline.
+
+## Example output
+
+The CLI emits structured counters derived at runtime from generated records:
+
+```json
+{"customers_input": 100, "features_created": 100, "recommendations_created": 25}
+```
+
+Exact recommendation counts depend on the configured regional limits. No benchmark or production-scale claim is embedded in this repository.
+
+## Repository map
+
+```text
+configs/            Fictional regional and pipeline settings
+data/sample/        Small, hand-authored synthetic CSV examples
+docs/               Architecture, data model, and design decisions
+notebooks/          Output-free demonstration notebook
+resources/          Generic Databricks job definition
+scripts/            Local content and secret safety check
+sql/                Generic Delta table DDL
+src/                Pipeline implementation
+tests/              Unit, integration, and Spark tests
+```
+
+## Security and data policy
+
+- Data is generated locally from a deterministic pseudo-random seed.
+- No environment file, credential, remote host, workspace identifier, or private package source is required.
+- Generated data is ignored by Git.
+- The repository security check rejects secret-shaped values, private service URLs, notebook outputs, and unexpected binary files.
+
+## Disclaimer
+
+This is an independent portfolio project built with synthetic data and generic business rules. It does not contain proprietary source code, confidential information, production data, internal configurations, or business logic from any current or former employer.

@@ -1,0 +1,18 @@
+seed: 20260807
+as_of_date: "2026-08-01"
+delivery:
+  mode: mock
+  max_attempts: 3
+  base_delay_seconds: 0.0
+regions:
+  north:
+    enabled: true
+    recommendation_limit: 10
+  south:
+    enabled: true
+    recommendation_limit: 15
+scoring:
+  recency: 0.30
+  frequency: 0.25
+  value: 0.20
+  engagement: 0.25

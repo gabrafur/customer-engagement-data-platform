@@ -1,0 +1,6 @@
+transaction_id,customer_id,product_id,transaction_date,amount
+transaction_0001,customer_0001,item_004,2026-07-29,42.50
+transaction_0002,customer_0002,item_009,2026-03-04,18.00
+transaction_0003,customer_0003,item_002,2026-07-12,240.00
+transaction_0004,customer_0003,item_007,2026-07-27,175.25
+transaction_0005,customer_0004,item_003,2026-06-14,64.90
