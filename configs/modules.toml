@@ -21,5 +21,12 @@ checks = ["spark-tests", "bundle-review"]
 [[modules]]
 id = "documentation"
 version = "0.2.0"
-paths = ["README.md", "docs/*.md", "docs/**/*.md"]
+paths = [
+  "README.md",
+  "docs/*.md",
+  "docs/**/*.md",
+  "docs/*.mmd",
+  "docs/assets/*.svg",
+  "docs/assets/*.png",
+]
 checks = ["link-check", "content-scan"]

@@ -6,7 +6,7 @@ from typing import Any
 
 
 def build_customer_features_spark(customers: Any, transactions: Any, as_of_date: str) -> Any:
-    """Build customer features using standard Spark SQL expressions."""
+    """Build features with the PySpark DataFrame API and Spark SQL expressions."""
 
     from pyspark.sql import functions as sf
 

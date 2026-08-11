@@ -26,14 +26,19 @@ TEXT_SUFFIXES = {
     ".ipynb",
     ".json",
     ".md",
+    ".mmd",
     ".py",
     ".sql",
+    ".svg",
     ".toml",
     ".txt",
     ".yaml",
     ".yml",
 }
-ALLOWED_BINARY_SUFFIXES: set[str] = set()
+ALLOWED_BINARY_FILES = {
+    Path("docs") / "assets" / "customer-engagement-architecture.png",
+    Path("docs") / "assets" / "github-social-preview.png",
+}
 IGNORED_PARTS = {
     ".git",
     ".mypy_cache",
@@ -62,7 +67,7 @@ def scan(root: Path) -> list[str]:
             findings.append(f"tracked environment file: {path}")
             continue
         if path.suffix.lower() not in TEXT_SUFFIXES:
-            if path.suffix.lower() not in ALLOWED_BINARY_SUFFIXES:
+            if path.relative_to(root) not in ALLOWED_BINARY_FILES:
                 findings.append(f"unexpected binary or file type: {path}")
             continue
         text = path.read_text(encoding="utf-8", errors="replace")

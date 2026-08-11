@@ -1,0 +1,65 @@
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Inter,Segoe UI,Arial,sans-serif", "fontSize": "24px", "primaryTextColor": "#172033", "lineColor": "#64748b"}}}%%
+flowchart TB
+    subgraph Sources["Sources"]
+        direction TB
+        SYN["Deterministic synthetic<br/>customers & transactions"]
+        CSV["Hand-authored<br/>sample CSVs"]
+    end
+
+    subgraph Processing["Processing"]
+        direction TB
+        LOCAL["Input quality gate<br/>↓<br/>Local feature engineering<br/>↓<br/>Scoring, ranking & deduplication<br/>↓<br/>Output quality gate"]
+        SPARK["PySpark DataFrame contract<br/>filter · aggregate · join · nulls · dates"]
+    end
+
+    subgraph Storage["Lakehouse / Storage"]
+        direction TB
+        MEM[("In-memory store<br/>insert once by idempotency key")]
+        DELTA[("Optional Delta MERGE<br/>insert unmatched keys")]
+        MUTATION["Mutation retry +<br/>literal partition scope"]
+    end
+
+    subgraph Reliability["Reliability & Delivery"]
+        direction TB
+        DELIVERY["Mock delivery<br/>bounded retry · receipt cache<br/>status reconciliation"]
+        REPLAY["As-of historical replay<br/>delivery not constructed"]
+        OUTBOX["Transactional outbox pattern<br/>append-only transitions"]
+    end
+
+    subgraph Operations["Operations / Observability"]
+        direction TB
+        OBS["JSON logs & runtime counters"]
+        PLATFORM["Run provenance · fingerprints<br/>DAG gates · failure / skip states"]
+        CICD["Ruff · mypy · pytest · Spark<br/>wheel build · content scan"]
+        DBX["Databricks-compatible<br/>Asset Bundle example"]
+    end
+
+    SYN --> LOCAL
+    CSV --> LOCAL
+    LOCAL --> MEM --> DELIVERY
+
+    SYN -.-> SPARK
+    SPARK -.-> LOCAL
+    LOCAL -.-> DELTA
+    MUTATION -.-> DELTA
+
+    SYN -.-> REPLAY
+    REPLAY --> MEM
+    MEM -.-> OUTBOX
+
+    LOCAL -.-> OBS
+    DELIVERY -.-> OBS
+    LOCAL -.-> PLATFORM
+    PLATFORM -.-> CICD
+    DELTA -.-> DBX
+
+    classDef source fill:#eef6ff,stroke:#2563eb,color:#172033,stroke-width:2px;
+    classDef process fill:#f5f3ff,stroke:#7c3aed,color:#172033,stroke-width:2px;
+    classDef storage fill:#ecfdf5,stroke:#059669,color:#172033,stroke-width:2px;
+    classDef reliability fill:#fff7ed,stroke:#ea580c,color:#172033,stroke-width:2px;
+    classDef operations fill:#f8fafc,stroke:#475569,color:#172033,stroke-width:2px;
+    class SYN,CSV source;
+    class LOCAL,SPARK process;
+    class MEM,DELTA,MUTATION storage;
+    class DELIVERY,REPLAY,OUTBOX reliability;
+    class OBS,PLATFORM,CICD,DBX operations;
