@@ -14,3 +14,4 @@ htmlcov/
 data/generated/*
 !data/generated/.gitkeep
 .databricks/
+.vscode
